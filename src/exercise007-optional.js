@@ -7,7 +7,11 @@
  * @param {Number} n
  */
 export const sumDigits = (n) => {
-  if (n === undefined) throw new Error('n is required');
+  const absN = Math.abs(n); // Use absolute value to handle negative numbers
+  return absN
+    .toString()
+    .split('')
+    .reduce((sum, digit) => sum + parseInt(digit, 10), 0);
 };
 
 /**
@@ -23,6 +27,14 @@ export const createRange = (start, end, step) => {
   if (end === undefined) throw new Error('end is required');
   if (step === undefined)
     console.log("FYI: Optional step parameter not provided. Remove this check once you've handled the optional step!");
+  if (step <= 0) throw new Error('step must be a positive number');
+  if (step <= 0) throw new Error('step must be a positive number');
+
+  let range = [];
+  for (let i = start; i <= end; i += step) {
+    range.push(i);
+  }
+  return range;
 };
 
 /**
@@ -57,6 +69,11 @@ export const createRange = (start, end, step) => {
 export const getScreentimeAlertList = (users, date) => {
   if (users === undefined) throw new Error('users is required');
   if (date === undefined) throw new Error('date is required');
+  return users
+    .filter((user) =>
+      user.screenTime.some((entry) => entry.date === date && Object.values(entry.usage).some((time) => time > 60)),
+    )
+    .map((user) => user.username);
 };
 
 /**
@@ -71,6 +88,20 @@ export const getScreentimeAlertList = (users, date) => {
  */
 export const hexToRGB = (hexStr) => {
   if (hexStr === undefined) throw new Error('hexStr is required');
+  const hex = hexStr.startsWith('#') ? hexStr.slice(1) : hexStr;
+  if (!/^[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?$/.test(hex)) {
+    throw new Error('Invalid hexStr');
+  }
+  const paddedHex =
+    hex.length === 3
+      ? hex
+          .split('')
+          .map((char) => char + char)
+          .join('')
+      : hex;
+
+  const decimalValues = paddedHex.match(/.{1,2}/g).map((value) => parseInt(value, 16));
+  return `rgb(${decimalValues.join(',')})`;
 };
 
 /**
@@ -85,4 +116,27 @@ export const hexToRGB = (hexStr) => {
  */
 export const findWinner = (board) => {
   if (board === undefined) throw new Error('board is required');
+  for (let row of board) {
+    if (row.every((cell) => cell === row[0] && cell !== null)) {
+      return row[0];
+    }
+  }
+  for (let i = 0; i < board[0].length; i++) {
+    const column = board.map((row) => row[i]);
+    if (column.every((cell) => cell === column[0] && cell !== null)) {
+      return column[0];
+    }
+  }
+  const mainDiagonal = board.map((row, i) => row[i]);
+  const antiDiagonal = board.map((row, i) => row[board.length - 1 - i]);
+
+  if (mainDiagonal.every((cell) => cell === mainDiagonal[0] && cell !== null)) {
+    return mainDiagonal[0];
+  }
+
+  if (antiDiagonal.every((cell) => cell === antiDiagonal[0] && cell !== null)) {
+    return antiDiagonal[0];
+  }
+
+  return null;
 };
